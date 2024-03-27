@@ -1,0 +1,15 @@
+torch 
+datasets 
+transformers 
+trl 
+tyro 
+tqdm 
+accelerate 
+peft 
+dataclasses 
+colorama 
+wandb
+tensorboardX
+huggingface_hub
+bitsandbytes
+alpaca-eval
