@@ -6,7 +6,7 @@ from typing import Dict, Optional
 import torch
 import pandas as pd
 import wandb
-from datasets import Dataset, load_dataset
+from datasets import Dataset, load_dataset, DatasetDict
 from peft import LoraConfig
 from transformers import AutoModelForCausalLM, AutoTokenizer, HfArgumentParser, TrainingArguments
 from peft import AutoPeftModelForCausalLM
@@ -26,7 +26,7 @@ class ScriptArguments:
 
     # training parameters  
     model_name_or_path: Optional[str] = field(
-        default="guoyu-zhang/Llama2-7b-chat-dpo-hh",
+        default="guoyu-zhang/Llama2-7b-chat-dpo-hh-lora",
         metadata={"help": "the location of the SFT model name or path"},
     )
     learning_rate: Optional[float] = field(default=5e-4, metadata={"help": "optimizer learning rate"})
@@ -55,10 +55,10 @@ class ScriptArguments:
     save_steps: Optional[int] = field(default=100, metadata={"help": "the saving frequency"})
     eval_steps: Optional[int] = field(default=100, metadata={"help": "the evaluation frequency"})
 
-    output_dir: Optional[str] = field(default="./user2_w_merged_model", metadata={"help": "the output directory"})
+    output_dir: Optional[str] = field(default="./default", metadata={"help": "the output directory"})
     log_freq: Optional[int] = field(default=1, metadata={"help": "the logging frequency"})
     
-    user_number: Optional[str] = field(default="2", metadata={"help": "the dataset to be loaded"})
+    user_number: Optional[str] = field(default="1", metadata={"help": "the dataset to be loaded"})
 
     # instrumentation
     sanity_check: Optional[bool] = field(default=False, metadata={"help": "only train on 1000 samples"})
@@ -90,7 +90,16 @@ def get_user_dataset(
     train_path = "../generate_prompt/user" + user_number + ".json"
     df = pd.read_json(train_path)[:200]
     df = Dataset.from_pandas(df)
-    dataset = df[split]
+    # 80% train, 20% test + validation
+    train_testvalid = df.train_test_split(test_size=0.2)
+    # Split the 20% test + valid in 10:30
+    test_valid = train_testvalid['test'].train_test_split(test_size=30/40)
+    # gather everyone if you want to have a single DatasetDict
+    train_test_valid_dataset = DatasetDict({
+        'train': train_testvalid['train'],
+        'test': test_valid['test'],
+        'valid': test_valid['train']})
+    dataset = train_test_valid_dataset[split]
     
     original_columns = dataset.column_names
         
@@ -114,7 +123,7 @@ if __name__ == "__main__":
     script_args = parser.parse_args_into_dataclasses()[0]
 
     # 1. load a pretrained model
-    model = AutoModelForCausalLM.from_pretrained(
+    model = AutoPeftModelForCausalLM.from_pretrained(
         script_args.model_name_or_path,
         low_cpu_mem_usage=True,
         torch_dtype=torch.float16,

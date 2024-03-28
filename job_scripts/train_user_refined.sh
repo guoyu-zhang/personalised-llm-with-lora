@@ -4,8 +4,8 @@
 #$ -cwd
 #$ -l h_rt=24:00:00
 #$ -l h_vmem=100G
-#$ -o logs_user_refined/train.log
-#$ -e logs_user_refined/train.err
+#$ -o logs/user_refined/train.log
+#$ -e logs/user_refined/train.err
 #$ -q gpu
 #$ -pe gpu-a100 1
 #  These options are:
@@ -14,8 +14,8 @@
 #  runtime limit of 5 minutes: -l h_rt
 #  memory limit of 1 Gbyte: -l h_vmem
 
-> $(pwd)/logs_user_refined/train.err
-> $(pwd)/logs_user_refined/train.log
+> $(pwd)/logs/user_refined/train.err
+> $(pwd)/logs/user_refined/train.log
 
 # Initialise the environment modules
 . /etc/profile.d/modules.sh
@@ -28,7 +28,7 @@ module load python/3.11.4
 source /exports/eddie/scratch/s1808795/repo/PEFT-TRL/venv/bin/activate
 
 # Run the program
-python ~/user_centric_llms/python_files/dpo_user_refined.py
+python ~/user_centric_llms/python_files/dpo_user_refined.py --output_dir "./refined_user1"
 
 deactivate
 

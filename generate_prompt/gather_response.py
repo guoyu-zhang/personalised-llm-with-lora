@@ -58,5 +58,5 @@ def filter_json_entries(input_file, output_file):
 
 # Example usage
 input_file = 'generations.json'
-output_file = 'user3.json'
+output_file = 'user4.json'
 filter_json_entries(input_file, output_file)
