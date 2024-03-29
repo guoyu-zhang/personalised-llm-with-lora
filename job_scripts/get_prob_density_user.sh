@@ -1,11 +1,11 @@
 \#!/bin/sh
 # Grid Engine options (lines prefixed with #$)
-#$ -N get_prob_density
+#$ -N pd
 #$ -cwd
-#$ -l h_rt=10:00:00
-#$ -l h_vmem=100G
-#$ -o logs_pd/train.log
-#$ -e logs_pd/train.err
+#$ -l h_rt=24:00:00
+#$ -l h_vmem=80G
+#$ -o logs/pd_user1_finetuned/train.log
+#$ -e logs/pd_user1_finetuned/train.err
 #$ -q gpu
 #$ -pe gpu-a100 1
 #  These options are:
@@ -14,8 +14,8 @@
 #  runtime limit of 5 minutes: -l h_rt
 #  memory limit of 1 Gbyte: -l h_vmem
 
-> $(pwd)/logs_pd/train.err
-> $(pwd)/logs_pd/train.log
+> $(pwd)/logs/pd_user1_finetuned/train.err
+> $(pwd)/logs/pd_user1_finetuned/train.log
 
 # Initialise the environment modules
 . /etc/profile.d/modules.sh

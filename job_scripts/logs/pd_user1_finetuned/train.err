@@ -1,0 +1,5 @@
+Loading python/3.11.4
+  Loading requirement: phys/compilers/gcc/11.2.0 osgeo/1.0
+The `load_in_4bit` and `load_in_8bit` arguments are deprecated and will be removed in the future versions. Please, pass a `BitsAndBytesConfig` object in `quantization_config` argument instead.
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:17<00:17, 17.96s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:23<00:00, 10.86s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:23<00:00, 11.93s/it]
+Map (num_proc=24):   0%|          | 0/30 [00:00<?, ? examples/s]Map (num_proc=24):   7%|▋         | 2/30 [00:00<00:03,  7.49 examples/s]Map (num_proc=24):  47%|████▋     | 14/30 [00:00<00:00, 44.79 examples/s]Map (num_proc=24): 100%|██████████| 30/30 [00:00<00:00, 81.27 examples/s]Map (num_proc=24): 100%|██████████| 30/30 [00:00<00:00, 54.05 examples/s]

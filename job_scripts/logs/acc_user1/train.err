@@ -1,0 +1,7 @@
+Loading python/3.11.4
+  Loading requirement: phys/compilers/gcc/11.2.0 osgeo/1.0
+The `load_in_4bit` and `load_in_8bit` arguments are deprecated and will be removed in the future versions. Please, pass a `BitsAndBytesConfig` object in `quantization_config` argument instead.
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:10<00:10, 10.73s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:14<00:00,  6.35s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:14<00:00,  7.01s/it]
+Map (num_proc=24):   0%|          | 0/30 [00:00<?, ? examples/s]Map (num_proc=24):   7%|▋         | 2/30 [00:00<00:03,  8.05 examples/s]Map (num_proc=24):  47%|████▋     | 14/30 [00:00<00:00, 46.47 examples/s]Map (num_proc=24): 100%|██████████| 30/30 [00:00<00:00, 58.09 examples/s]
+/exports/eddie/scratch/s1808795/repo/PEFT-TRL/venv/lib/python3.11/site-packages/bitsandbytes/nn/modules.py:226: UserWarning: Input type into Linear4bit is torch.float16, but bnb_4bit_compute_dtype=torch.float32 (default). This will lead to slow inference or training speed.
+  warnings.warn(f'Input type into Linear4bit is torch.float16, but bnb_4bit_compute_dtype=torch.float32 (default). This will lead to slow inference or training speed.')

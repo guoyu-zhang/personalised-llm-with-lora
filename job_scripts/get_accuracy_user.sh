@@ -3,9 +3,9 @@
 #$ -N get_accuracy
 #$ -cwd
 #$ -l h_rt=24:00:00
-#$ -l h_vmem=100G
-#$ -o logs/train.log
-#$ -e logs/train.err
+#$ -l h_vmem=80G
+#$ -o logs/acc_user1/train.log
+#$ -e logs/acc_user1/train.err
 #$ -q gpu
 #$ -pe gpu-a100 1
 #  These options are:
@@ -14,8 +14,8 @@
 #  runtime limit of 5 minutes: -l h_rt
 #  memory limit of 1 Gbyte: -l h_vmem
 
-> $(pwd)/logs/train.err
-> $(pwd)/logs/train.log
+> $(pwd)/logs/acc_user1/train.err
+> $(pwd)/logs/acc_user1/train.log
 
 # Initialise the environment modules
 . /etc/profile.d/modules.sh

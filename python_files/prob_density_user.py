@@ -1,49 +1,43 @@
 import os
 import sys
 from typing import Dict
+import pandas as pd
 
 import torch
-from datasets import Dataset, load_dataset
+from datasets import Dataset, load_dataset, DatasetDict
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from huggingface_hub import login
 from peft import AutoPeftModelForCausalLM
 
 
 def get_user_dataset(
-    data_dir: str = "data",
-    sanity_check: bool = False,
-    cache_dir: str = None,
     num_proc=24,
     split="train",
-    user_number='1',
+    user_number="1",
 ) -> Dataset:
-    """Load dataset for one user and convert it to the necessary format.
-
-    The dataset is converted to following structure:
-    {
-        'prompt': List[str],
-        'chosen': List[str],
-        'rejected': List[str],
-    }
-    """
-    def load_user(user_number, split):
-        train_path = "../data/parquets/user" + user_number + "_train-00000-of-00001.parquet"
-        valid_path = "../data/parquets/user" + user_number + "_valid-00000-of-00001.parquet"
-        test_path = "../data/parquets/user" + user_number + "_test-00000-of-00001.parquet"
-        user_dataset = load_dataset("parquet", data_files={'train': train_path, 'valid': valid_path, 'test': test_path})
-        return user_dataset[split]
+    """Load dataset for one user and convert it to the necessary format."""
     
-    dataset = load_user(user_number, split)
+    train_path = "../generate_prompt/user" + user_number + ".json"
+    df = pd.read_json(train_path)[:200]
+    df = Dataset.from_pandas(df)
+    # 80% train, 20% test + validation
+    train_testvalid = df.train_test_split(test_size=0.2)
+    # Split the 20% test + valid in 10:30
+    test_valid = train_testvalid['test'].train_test_split(test_size=30/40)
+    # gather everyone if you want to have a single DatasetDict
+    train_test_valid_dataset = DatasetDict({
+        'train': train_testvalid['train'],
+        'test': test_valid['test'],
+        'valid': test_valid['train']})
+    dataset = train_test_valid_dataset[split]
+    
     original_columns = dataset.column_names
-
-    if sanity_check:
-        dataset = dataset.select(range(min(len(dataset), 1000)))
         
     def return_prompt_and_responses(samples) -> Dict[str, str]:
         return {
-            "prompt": "Human: " + samples["history"] + " Assistant: ",
-            "chosen": samples["human_ref_A"] if samples["labels"] == 1 else samples["human_ref_B"],
-            "rejected": samples["human_ref_B"] if samples["labels"] == 1 else samples["human_ref_A"],
+            "prompt": "Human: " + samples["instruction"] + " Assistant: ",
+            "chosen": samples["response_1"] if samples["chosen"] == 1 else samples["response_2"],
+            "rejected": samples["response_2"] if samples["chosen"] == 1 else samples["response_1"],
         }
 
     return dataset.map(
@@ -53,16 +47,24 @@ def get_user_dataset(
     )
 
 
+
 if __name__ == "__main__": 
-    results_file = "prob_density_user2_base_llama2.txt"
+    results_file = "prob_density_user1_base.txt"
     access_token_read = "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"
     access_token_write = "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"
     login(token = access_token_write)
     # -------------- PRETRAINED MODEL --------------
+    # Load the model
+    # pretrained_model = AutoModelForCausalLM.from_pretrained(
+    #     "meta-llama/Llama-2-7b-chat-hf",
+    #     low_cpu_mem_usage=True,
+    #     torch_dtype=torch.float32,
+    #     load_in_4bit=True,
+    # )
     
     # Load the model
-    pretrained_model = AutoModelForCausalLM.from_pretrained(
-        "meta-llama/Llama-2-7b-chat-hf",
+    pretrained_model = AutoPeftModelForCausalLM.from_pretrained(
+        "./refined_user1",
         low_cpu_mem_usage=True,
         torch_dtype=torch.float32,
         load_in_4bit=True,
@@ -75,7 +77,7 @@ if __name__ == "__main__":
         file.write("Loaded model\n")
 
     # 3. Load evaluation dataset
-    eval_dataset = get_user_dataset(data_dir="data", sanity_check=False, split="test", user_number='2')
+    eval_dataset = get_user_dataset(split="test", user_number='1')
 
 
     with open(results_file, 'a') as file: 
@@ -91,7 +93,7 @@ if __name__ == "__main__":
         counter += 1 
             
         prompt = example['prompt']
-        chosen = example['chosen']
+        chosen = example['rejected']
         
         combined_text = prompt + chosen
         tokenized_text = pretrained_tokenizer.encode(combined_text, return_tensors="pt")

@@ -20,10 +20,10 @@ if __name__ == "__main__":
     
     # 1. load a pretrained model
     model = AutoPeftModelForCausalLM.from_pretrained(
-        './user1',
+        './refined_user1',
         low_cpu_mem_usage=True,
         torch_dtype=torch.float16,
         quantization_config=bnb_config,
     )
     
-    model.push_to_hub("guoyu-zhang/Llama2-7b-chat-dpo-hh-lora-user1")
+    model.push_to_hub("guoyu-zhang/user1")
