@@ -28,7 +28,8 @@ module load python/3.11.4
 source /exports/eddie/scratch/s1808795/repo/PEFT-TRL/venv/bin/activate
 
 # Run the program
-python ~/user_centric_llms/python_files/dpo_user_refined.py --output_dir "./refined_user1"
+python ~/user_centric_llms/python_files/dpo_user_refined.py --output_dir "./refined_user1_5e-5" --learning_rate 0.00005
+python ~/user_centric_llms/python_files/dpo_user_refined.py --output_dir "./refined_user1_1e-4" --learning_rate 0.0001
 
 deactivate
 

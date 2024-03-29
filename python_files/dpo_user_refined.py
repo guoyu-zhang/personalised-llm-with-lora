@@ -6,6 +6,7 @@ from typing import Dict, Optional
 import torch
 import pandas as pd
 import wandb
+from huggingface_hub import login
 from datasets import Dataset, load_dataset, DatasetDict
 from peft import LoraConfig
 from transformers import AutoModelForCausalLM, AutoTokenizer, HfArgumentParser, TrainingArguments
@@ -118,6 +119,11 @@ def get_user_dataset(
 
 
 if __name__ == "__main__":
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    print(device)
+    access_token_read = "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"
+    access_token_write = "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"
+    login(token = access_token_write)
     wandb.login(key="8c53566517fe295a4c6e0d7814014d55874a6155")
     parser = HfArgumentParser(ScriptArguments)
     script_args = parser.parse_args_into_dataclasses()[0]
@@ -205,7 +211,6 @@ if __name__ == "__main__":
     # 7. save
     output_dir = os.path.join(script_args.output_dir, "final_checkpoint")
     dpo_trainer.model.save_pretrained(output_dir)
-
 
 
 
